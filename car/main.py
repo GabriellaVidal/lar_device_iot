@@ -1,29 +1,46 @@
 # Complete project details at https://RandomNerdTutorials.com
 import mov
+import time
 
 def movimentar(topic, msg):
   print((topic, msg))
   if topic == b'esp/rele1' and msg == b'andar':
     print('ESP received, rele1 to on')
-    mov.frente();
+    temporizador('frente')
 
   if topic == b'esp/rele1' and msg == b're':
     print('ESP received, rele1 to re')
-    mov.re();
+    temporizador('re')
 
   if topic == b'esp/rele1' and msg == b'andarDireita':
     print('ESP received, rele1 to direita')
-    mov.dir();
+    temporizador('dir')
 
   if topic == b'esp/rele1' and msg == b'andarEsquerda':
     print('ESP received, rele1 to direita')
-    mov.esq();
+    temporizador('esq')
 
   if topic == b'esp/rele1' and msg == b'parar':
     print('ESP received, rele1 to off')
     mov.parar();
 
-  time.sleep(1);
+def temporizador(comando):
+  now=time.time()
+  timer = 0
+  while timer != 10:
+    end = time.time()
+    timer = round(end-now)
+    print(timer)
+    print(comando)
+    if(comando == 'frente'):
+      mov.frente()
+    if(comando == 're'):
+      mov.re()
+    if(comando == 'dir'):
+      mov.dir()
+    if(comando == 'esq'):
+      mov.esq()
+  mov.parar()
 
 def connect():
   print('connect')
@@ -47,7 +64,7 @@ except OSError as e:
 
 while True:
   try:
-    print(client.check_msg())
+    client.check_msg()
     if (time.time() - last_message) > message_interval:
       # write on 'Hello' topic 
       msg = b'Oi #%d' % counter
