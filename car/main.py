@@ -3,26 +3,33 @@ import mov
 import time
 
 def movimentar(topic, msg):
-  print((topic, msg))
-  if topic == b'esp/rele1' and msg == b'andar':
-    print('ESP received, rele1 to on')
-    temporizador('frente')
+  print((topic, msg.decode("utf-8")))
 
-  if topic == b'esp/rele1' and msg == b're':
-    print('ESP received, rele1 to re')
-    temporizador('re')
+  msg_replace = msg.decode("utf-8").replace(']','').replace('[','')
+  msg_array = msg_replace.replace('"','').split(",")
+  print(msg_array)
 
-  if topic == b'esp/rele1' and msg == b'andarDireita':
-    print('ESP received, rele1 to direita')
-    temporizador('dir')
+  for x in msg_array:
 
-  if topic == b'esp/rele1' and msg == b'andarEsquerda':
-    print('ESP received, rele1 to direita')
-    temporizador('esq')
+    if topic == b'esp/rele1' and x == 'up':
+      print('ESP received, rele1 to on')
+      temporizador('frente')
 
-  if topic == b'esp/rele1' and msg == b'parar':
-    print('ESP received, rele1 to off')
-    mov.parar();
+    if topic == b'esp/rele1' and x == 'down':
+      print('ESP received, rele1 to re')
+      temporizador('re')
+
+    if topic == b'esp/rele1' and x == 'right':
+      print('ESP received, rele1 to direita')
+      temporizador('dir')
+
+    if topic == b'esp/rele1' and x == 'left':
+      print('ESP received, rele1 to direita')
+      temporizador('esq')
+
+    if topic == b'esp/rele1' and x == 'stop':
+      print('ESP received, rele1 to off')
+      mov.parar();
 
 def temporizador(comando):
   now=time.time()

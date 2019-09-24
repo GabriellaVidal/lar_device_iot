@@ -21,7 +21,7 @@ from machine import Pin
 
 ssid = 'LAR'
 password = 'LAR@1480'
-mqtt_server = '10.6.4.147'
+mqtt_server = '10.6.4.138'
 server_port=1883
 mqtt_user=''
 mqtt_password=''
