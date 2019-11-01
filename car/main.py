@@ -1,6 +1,10 @@
 # Complete project details at https://RandomNerdTutorials.com
 import mov
-import time
+
+# from rodas import Rodas
+global Pin, time
+carrinho = Rodas()
+# r = Rodas()
 
 def movimentar(topic, msg):
   print((topic, msg.decode("utf-8")))
@@ -40,14 +44,29 @@ def temporizador(comando):
     print(timer)
     print(comando)
     if(comando == 'frente'):
-      mov.frente()
+      carrinho.frente()
     if(comando == 're'):
-      mov.re()
+      carrinho.re()
     if(comando == 'dir'):
-      mov.dir()
+      carrinho.direita()
     if(comando == 'esq'):
-      mov.esq()
-  mov.parar()
+      carrinho.esquerda()
+  carrinho.parar()
+
+def alinhar():
+  rodaEsquerda = Pin(13,Pin.IN) #retornando 1
+
+  rodaDireita = Pin(14,Pin.IN) #retornando 1
+  if(rodaEsquerda.value() == 1 and rodaDireita.value() == 0):
+    # print('testando calibrar esquerda')
+    carrinho.alinharDireita()
+  elif(rodaEsquerda.value() == 0 and rodaDireita.value() == 1):
+    # print('testando calibrar direta')
+    carrinho.alinharEsquerda()
+  elif(rodaEsquerda.value() == 1 and rodaDireita.value() == 1):
+    # print('parar')
+    carrinho.parar()
+
 
 def connect():
   print('connect')
@@ -70,6 +89,12 @@ except OSError as e:
   restart_and_reconnect()
 
 while True:
+
+  alinhar()
+  time.sleep(1)
+  # mov.frente()
+  # carrinho.frente()
+   
   try:
     client.check_msg()
     if (time.time() - last_message) > message_interval:

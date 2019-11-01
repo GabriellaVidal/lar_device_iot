@@ -2,6 +2,7 @@
 
 import time
 from umqttsimple import MQTTClient
+from rodas import Rodas
 import ubinascii
 import machine
 import micropython
@@ -21,7 +22,7 @@ from machine import Pin
 
 ssid = 'LAR'
 password = 'LAR@1480'
-mqtt_server = '10.6.4.138'
+mqtt_server = '10.6.4.137'
 server_port=1883
 mqtt_user=''
 mqtt_password=''
