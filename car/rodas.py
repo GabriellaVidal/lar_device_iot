@@ -23,50 +23,36 @@ class Rodas:
      
     
     def frente(self):
-        print("frente") 
-        self.PwmB.duty(900) 
-        self.PwmA.duty(900)
-        self.DirA.off() 
-        self.DirB.off() 
-        
-    def re(self):
-        print("re") 
-        self.PwmA.duty(900)
-        self.PwmB.duty(900) 
+        # print("frente") 
+        self.PwmB.duty(700) 
+        self.PwmA.duty(700)
         self.DirA.on() 
         self.DirB.on() 
+        
+    def re(self):
+        # print("re") 
+        self.PwmA.duty(700)
+        self.PwmB.duty(700) 
+        self.DirA.off() 
+        self.DirB.off() 
      
     def esquerda(self):
-        print("esquerda") 
-        self.PwmA.duty(900)
-        self.PwmB.duty(900) 
+        # print("esquerda") 
+        self.PwmA.duty(700)
+        self.PwmB.duty(700) 
         self.DirA.on() 
         self.DirB.off() 
         
     def direita(self):
-        print("direita") 
-        self.PwmA.duty(900)
-        self.PwmB.duty(900) 
+        # print("direita") 
+        self.PwmA.duty(700)
+        self.PwmB.duty(700) 
         self.DirA.off() 
         self.DirB.on()  
         
     def parar(self):
-        print("parar") 
+        # print("parar") 
         self.PwmA.duty(0)
         self.PwmB.duty(0) 
         self.DirA.off() 
         self.DirB.off() 
-
-    def alinharDireita(self):
-        print("alinhar direita 123") 
-        self.PwmA.duty(900)
-        self.PwmB.duty(0) 
-        self.DirA.off() 
-        self.DirB.off() 
-
-    def alinharEsquerda(self):
-        print("alinhar esquerda 123") 
-        self.PwmA.duty(0)
-        self.PwmB.duty(900) 
-        self.DirA.off() 
-        self.DirB.off()  

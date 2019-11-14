@@ -1,48 +1,54 @@
 # Complete project details at https://RandomNerdTutorials.com
-import mov
+# import mov
 
 # from rodas import Rodas
 global Pin, time
 carrinho = Rodas()
-# r = Rodas()
+tempoGirar = 4
+tempoFrente = tempoRe = 2
+execucao = mensagemEmExecucao = False
+alinhado = False
+desalinhado = True
 
-def movimentar(topic, msg):
+def recebeMensagem(topic, msg): # recebe mensagem chama movimento
+  global desalinhado
   print((topic, msg.decode("utf-8")))
 
   msg_replace = msg.decode("utf-8").replace(']','').replace('[','')
   msg_array = msg_replace.replace('"','').split(",")
   print(msg_array)
-
+  mensagemEmExecucao = True
   for x in msg_array:
 
     if topic == b'esp/rele1' and x == 'up':
-      print('ESP received, rele1 to on')
-      temporizador('frente')
+      # print('ESP received, rele1 to on')
+      desalinhado = True
+      alinhar()
+      movimentar('frente', tempoFrente)
 
     if topic == b'esp/rele1' and x == 'down':
-      print('ESP received, rele1 to re')
-      temporizador('re')
+      # print('ESP received, rele1 to re')
+      movimentar('re', tempoRe)
 
     if topic == b'esp/rele1' and x == 'right':
-      print('ESP received, rele1 to direita')
-      temporizador('dir')
+      # print('ESP received, rele1 to direita')
+      movimentar('dir', tempoGirar)
 
     if topic == b'esp/rele1' and x == 'left':
-      print('ESP received, rele1 to direita')
-      temporizador('esq')
+      # print('ESP received, rele1 to direita')
+      movimentar('esq', tempoGirar)
 
     if topic == b'esp/rele1' and x == 'stop':
-      print('ESP received, rele1 to off')
-      mov.parar();
+      # print('ESP received, rele1 to off')
+      carrinho.parar();
 
-def temporizador(comando):
+def movimentar(comando, tempo): #movimento
+  global desalinhado, execucao
   now=time.time()
   timer = 0
-  while timer != 10:
+  while timer != tempo:
     end = time.time()
     timer = round(end-now)
-    print(timer)
-    print(comando)
     if(comando == 'frente'):
       carrinho.frente()
     if(comando == 're'):
@@ -52,20 +58,34 @@ def temporizador(comando):
     if(comando == 'esq'):
       carrinho.esquerda()
   carrinho.parar()
+  execucao = False
 
 def alinhar():
-  rodaEsquerda = Pin(13,Pin.IN) #retornando 1
-
-  rodaDireita = Pin(14,Pin.IN) #retornando 1
-  if(rodaEsquerda.value() == 1 and rodaDireita.value() == 0):
-    # print('testando calibrar esquerda')
-    carrinho.alinharDireita()
-  elif(rodaEsquerda.value() == 0 and rodaDireita.value() == 1):
-    # print('testando calibrar direta')
-    carrinho.alinharEsquerda()
-  elif(rodaEsquerda.value() == 1 and rodaDireita.value() == 1):
-    # print('parar')
-    carrinho.parar()
+  print('alinhar')
+  global desalinhado, execucao
+  rodaEsquerda = Pin(13,Pin.IN) #retornando 0
+  rodaDireita = Pin(14,Pin.IN) #retornando 0
+  print('teste')
+  print(desalinhado)
+  while desalinhado == True:
+    print(rodaEsquerda.value())
+    print(rodaDireita.value())
+    print(execucao)
+    while rodaEsquerda.value() == rodaDireita.value() and desalinhado == True:
+      if rodaEsquerda.value() == 0 and rodaDireita.value() == 0:
+        carrinho.frente()
+      if rodaEsquerda.value() == 1 and rodaDireita.value() == 1:
+        carrinho.parar()
+        desalinhado = False
+    while rodaEsquerda.value() != rodaDireita.value() and desalinhado == True:
+      if rodaEsquerda.value() == 1 and rodaDireita.value() == 0:
+        carrinho.direita()
+      if rodaEsquerda.value() == 0 and rodaDireita.value() == 1:
+        carrinho.esquerda()
+  # carrinho.parar()
+  # time.sleep(5)
+  # if(mensagemEmExecucao == False):
+    
 
 
 def connect():
@@ -83,25 +103,22 @@ def restart_and_reconnect():
 
 try:
   client = connect()
-  client.set_callback(movimentar)
+  client.set_callback(recebeMensagem)
   client.subscribe(topic_sub)
+  alinhar()
+  movimentar('frente', tempoFrente)
 except OSError as e:
   restart_and_reconnect()
 
 while True:
-
-  alinhar()
-  time.sleep(1)
-  # mov.frente()
-  # carrinho.frente()
-   
+  # movimentar('frente', tempoFrente)
   try:
     client.check_msg()
-    if (time.time() - last_message) > message_interval:
-      # write on 'Hello' topic 
-      msg = b'Oi #%d' % counter
-      client.publish(topic_pub, msg)
-      last_message = time.time()
-      counter += 1
+  #   if (time.time() - last_message) > message_interval:
+  #     # write on 'Hello' topic 
+  #     msg = b'Oi #%d' % counter
+  #     client.publish(topic_pub, msg)
+  #     last_message = time.time()
+  #     counter += 1
   except OSError as e:
     restart_and_reconnect()
