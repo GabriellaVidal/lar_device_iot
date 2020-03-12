@@ -2,7 +2,6 @@
 
 import time
 from umqttsimple import MQTTClient
-from rodas import Rodas
 import ubinascii
 import machine
 import micropython
@@ -10,19 +9,11 @@ import network
 import esp
 esp.osdebug(None)
 import gc
-gc.collect()
-
-from machine import Pin
-#GPIO is equal to D2 
-#gpio_rele1 = Pin(4, Pin.OUT)
-#gpio_rele1.value(0); 
-
-#gpio_rele2 = Pin(5, Pin.OUT)
-#gpio_rele2.value(0); 
+gc.collect() 
 
 ssid = 'LAR'
 password = 'LAR@1480'
-mqtt_server = '10.6.4.156'
+mqtt_server = '10.6.4.138'
 server_port=1883
 mqtt_user=''
 mqtt_password=''

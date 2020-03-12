@@ -1,9 +1,8 @@
 # Complete project details at https://RandomNerdTutorials.com
-# import mov
-
-# from rodas import Rodas
-global Pin, time
+from rodas import Rodas
 carrinho = Rodas()
+from sensorColor import SensorColor
+colors = SensorColor()
 tempoGirar = 4
 tempoFrente = tempoRe = 2
 execucao = mensagemEmExecucao = False
@@ -88,37 +87,38 @@ def alinhar():
     
 
 
-def connect():
-  print('connect')
-  global client_id, mqtt_server, topic_sub, server_port, mqtt_user, mqtt_password
-  client = MQTTClient(client_id, mqtt_server, server_port, mqtt_user, mqtt_password)
-  client.connect()
-  print('Connected to %s MQTT broker, subscribed to %s topic' % (mqtt_server, topic_sub))
-  return client
+# def connect():
+#   print('connect')
+#   global client_id, mqtt_server, topic_sub, server_port, mqtt_user, mqtt_password
+#   client = MQTTClient(client_id, mqtt_server, server_port, mqtt_user, mqtt_password)
+#   client.connect()
+#   print('Connected to %s MQTT broker, subscribed to %s topic' % (mqtt_server, topic_sub))
+#   return client
 
-def restart_and_reconnect():
-  print('Failed to connect to MQTT broker. Reconnecting...')
-  time.sleep(10)
-  machine.reset()
+# def restart_and_reconnect():
+#   print('Failed to connect to MQTT broker. Reconnecting...')
+#   time.sleep(10)
+#   machine.reset()
 
-try:
-  client = connect()
-  client.set_callback(recebeMensagem)
-  client.subscribe(topic_sub)
-  alinhar()
-  movimentar('frente', tempoFrente)
-except OSError as e:
-  restart_and_reconnect()
+# try:
+#   client = connect()
+#   client.set_callback(recebeMensagem)
+#   client.subscribe(topic_sub)
+#   alinhar()
+#   movimentar('frente', tempoFrente)
+# except OSError as e:
+#   restart_and_reconnect()
 
+count = 0
 while True:
-  # movimentar('frente', tempoFrente)
-  try:
-    client.check_msg()
+  colors.readSensor();
+  # try:
+  #   client.check_msg()
   #   if (time.time() - last_message) > message_interval:
   #     # write on 'Hello' topic 
   #     msg = b'Oi #%d' % counter
   #     client.publish(topic_pub, msg)
   #     last_message = time.time()
   #     counter += 1
-  except OSError as e:
-    restart_and_reconnect()
+  # except OSError as e:
+  #   restart_and_reconnect()
