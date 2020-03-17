@@ -2,7 +2,8 @@
 from rodas import Rodas
 carrinho = Rodas()
 from sensorColor import SensorColor
-colors = SensorColor()
+sensorA = SensorColor(36, 14)
+sensorB = SensorColor(39, 12)
 tempoGirar = 4
 tempoFrente = tempoRe = 2
 execucao = mensagemEmExecucao = False
@@ -108,10 +109,11 @@ def alinhar():
 #   movimentar('frente', tempoFrente)
 # except OSError as e:
 #   restart_and_reconnect()
-
-count = 0
 while True:
-  colors.readSensor();
+  corA = sensorA.readSensor()
+  corB = sensorB.readSensor()
+  print('cor a ', corA)
+  print('cor b ', corB)
   # try:
   #   client.check_msg()
   #   if (time.time() - last_message) > message_interval:
