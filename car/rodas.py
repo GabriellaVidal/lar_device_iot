@@ -27,9 +27,11 @@ class Rodas:
         # self.PwmB = PWM(Pin(4), freq=1000 ,duty = 0)
         # self.DirB = Pin(2, Pin.OUT)
         self.freqA = 1000
-        self.dutyA = 200
+        self.dutyA = 300
         self.freqB = 1000 
-        self.dutyB = 200 
+        self.dutyB = 300 
+        self.dutyB = 300 
+        self.dutyOff = 700 #(misterio)
         self.PwmA = PWM(Pin(18), freq= self.freqA ,duty = 0)
         self.DirA = Pin(19, Pin.OUT)   
         self.PwmB = PWM(Pin(23), freq= self.freqB ,duty = 0)
@@ -45,21 +47,21 @@ class Rodas:
         
     def re(self):
         # print("re") 
-        self.PwmA.duty(self.dutyA)
-        self.PwmB.duty(self.dutyB) 
+        self.PwmA.duty(self.dutyOff)
+        self.PwmB.duty(self.dutyOff) 
         self.DirA.off() 
         self.DirB.off() 
      
     def esquerda(self):
         # print("esquerda") 
         self.PwmA.duty(self.dutyA)
-        self.PwmB.duty(self.dutyB) 
+        self.PwmB.duty(self.dutyOff) 
         self.DirA.on() 
         self.DirB.off() 
         
     def direita(self):
         # print("direita") 
-        self.PwmA.duty(self.dutyA)
+        self.PwmA.duty(self.dutyOff)
         self.PwmB.duty(self.dutyB) 
         self.DirA.off() 
         self.DirB.on()  

@@ -1,6 +1,7 @@
 import time
 from machine import Pin, ADC
 import neopixel
+
 class SensorColor:
     def __init__ (self, pinADC, pinDG):
     	self.red = 0
@@ -10,6 +11,8 @@ class SensorColor:
     	self.sensorLDR = ADC(Pin(pinADC))
     	self.sensorLDR.atten(ADC.ATTN_11DB)
     	self.sensorNP = neopixel.NeoPixel(Pin(pinDG), 1)
+    
+
 
     def changeColor(self, color):
     	if (color == 'G'):
@@ -22,29 +25,33 @@ class SensorColor:
 
     def readSensor(self):
     	self.changeColor('R')
-    	time.sleep_ms(100)
+    	time.sleep_ms(5)
     	self.red = self.sensorLDR.read()
     	# print('red ', self.red)
 
     	self.changeColor('G')
-    	time.sleep_ms(100)
+    	time.sleep_ms(5)
     	self.green = self.sensorLDR.read()
     	# print('green ', self.green)
 
     	self.changeColor('B')
-    	time.sleep_ms(100)
+    	time.sleep_ms(5)
     	self.blue = self.sensorLDR.read()
     	# print('blue ', self.blue)
 
     	if (self.red > self.green and self.red > self.blue and self.red > 3000):
-    		return "------------ VERMELHO ----------"
+    		return "VERMELHO"
     		# print("------------ VERMELHO ----------")
-    	elif (self.green > self.red and self.green > self.blue and self.green > 3400):
-    		return "------------ VERDE ----------"
-    	elif(self.blue > self.red):
-    		return "------------ AZUL ----------"
-    	elif(self.red > self.green and self.red > self.blue):
-    		return "------------ PRETO ----------"
+    	elif (self.green > self.red and self.green > self.blue and self.green > 3000):
+    		return "VERDE"
+    		# return "------------ VERDE ----------"
+    	elif(self.blue > self.red and self.green > self.blue and self.blue > 2400):
+    		return "AZUL"
+    		# return "------------ AZUL ----------"
+    	elif(self.red < self.green and self.green > self.blue):
+    		return "PRETO"
+    		# return "------------ PRETO ----------"
     	else:
-    		return "------------ NDA ----------"
+    		return "NDA"
+    		# return "------------ NDA ----------"
 			

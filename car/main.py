@@ -1,4 +1,4 @@
-# Complete project details at https://RandomNerdTutorials.com
+
 from rodas import Rodas
 carrinho = Rodas()
 from sensorColor import SensorColor
@@ -9,9 +9,11 @@ tempoFrente = tempoRe = 2
 execucao = mensagemEmExecucao = False
 alinhado = False
 desalinhado = True
+rodaEsquerda = rodaDireita = 'SL'
+import _thread
 
 def recebeMensagem(topic, msg): # recebe mensagem chama movimento
-  global desalinhado
+  global desalinhado, tempoFrente, tempoGirar
   print((topic, msg.decode("utf-8")))
 
   msg_replace = msg.decode("utf-8").replace(']','').replace('[','')
@@ -22,20 +24,25 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
 
     if topic == b'esp/rele1' and x == 'up':
       # print('ESP received, rele1 to on')
-      desalinhado = True
-      alinhar()
-      movimentar('frente', tempoFrente)
+      if(desalinhado == False):
+        movimentar('frente', tempoFrente)
+        desalinhado = True        
+      else:
+        alinharPorCores()
+        movimentar('frente', tempoFrente)
 
     if topic == b'esp/rele1' and x == 'down':
       # print('ESP received, rele1 to re')
-      movimentar('re', tempoRe)
+      movimentar('re', tempoFrente)
 
     if topic == b'esp/rele1' and x == 'right':
       # print('ESP received, rele1 to direita')
+      desalinhado = True
       movimentar('dir', tempoGirar)
 
     if topic == b'esp/rele1' and x == 'left':
       # print('ESP received, rele1 to direita')
+      desalinhado = True
       movimentar('esq', tempoGirar)
 
     if topic == b'esp/rele1' and x == 'stop':
@@ -50,77 +57,86 @@ def movimentar(comando, tempo): #movimento
     end = time.time()
     timer = round(end-now)
     if(comando == 'frente'):
+      print('frente')
       carrinho.frente()
     if(comando == 're'):
+      print('re')
       carrinho.re()
     if(comando == 'dir'):
+      print('dir')
       carrinho.direita()
     if(comando == 'esq'):
+      print('esq')
       carrinho.esquerda()
   carrinho.parar()
   execucao = False
 
-def alinhar():
+def lendoSensores():
+  global rodaEsquerda, rodaDireita
+  while True:
+    rodaEsquerda = sensorA.readSensor()
+    rodaDireita = sensorB.readSensor()
+    # time.sleep_ms(5)
+
+    # print('--------------------------------------rodaEsquerda ', rodaEsquerda)
+    # print('*************************************rodaDireita ', rodaDireita)
+    if rodaEsquerda == 'PRETO' and rodaDireita == 'PRETO':
+      print('--------------------------------------------------------------')
+
+def alinharPorCores():
   print('alinhar')
-  global desalinhado, execucao
-  rodaEsquerda = Pin(13,Pin.IN) #retornando 0
-  rodaDireita = Pin(14,Pin.IN) #retornando 0
+  global desalinhado, execucao, rodaEsquerda, rodaDireita
+  # rodaEsquerda = sensorA.readSensor()
+  # rodaDireita = sensorB.readSensor()
   print('teste')
   print(desalinhado)
   while desalinhado == True:
-    print(rodaEsquerda.value())
-    print(rodaDireita.value())
     print(execucao)
-    while rodaEsquerda.value() == rodaDireita.value() and desalinhado == True:
-      if rodaEsquerda.value() == 0 and rodaDireita.value() == 0:
+    print('rodaEsquerda alinhando', rodaEsquerda)
+    print('rodaDireita alinhando', rodaDireita)
+    while rodaEsquerda == rodaDireita and desalinhado == True:
+      if rodaEsquerda != 'PRETO' and rodaDireita != 'PRETO':
+        print("entrou1")
         carrinho.frente()
-      if rodaEsquerda.value() == 1 and rodaDireita.value() == 1:
+      if rodaEsquerda == 'PRETO' and rodaDireita == 'PRETO':
+        print("entrou2")
         carrinho.parar()
         desalinhado = False
-    while rodaEsquerda.value() != rodaDireita.value() and desalinhado == True:
-      if rodaEsquerda.value() == 1 and rodaDireita.value() == 0:
-        carrinho.direita()
-      if rodaEsquerda.value() == 0 and rodaDireita.value() == 1:
+    while rodaEsquerda != rodaDireita and desalinhado == True:
+      if rodaEsquerda == 'PRETO' and rodaDireita != 'PRETO':
+        print("entrou3")
         carrinho.esquerda()
-  # carrinho.parar()
-  # time.sleep(5)
-  # if(mensagemEmExecucao == False):
-    
+      if rodaEsquerda != 'PRETO' and rodaDireita == 'PRETO':
+        print("entrou4")
+        carrinho.direita()
+      if rodaEsquerda != 'PRETO' and rodaDireita != 'PRETO':
+        print("entrou5")
+        carrinho.frente()
 
+def connect():
+  print('connect')
+  global client_id, mqtt_server, topic_sub, server_port, mqtt_user, mqtt_password
+  client = MQTTClient(client_id, mqtt_server, server_port, mqtt_user, mqtt_password)
+  client.connect()
+  print('Connected to %s MQTT broker, subscribed to %s topic' % (mqtt_server, topic_sub))
+  return client
 
-# def connect():
-#   print('connect')
-#   global client_id, mqtt_server, topic_sub, server_port, mqtt_user, mqtt_password
-#   client = MQTTClient(client_id, mqtt_server, server_port, mqtt_user, mqtt_password)
-#   client.connect()
-#   print('Connected to %s MQTT broker, subscribed to %s topic' % (mqtt_server, topic_sub))
-#   return client
+def restart_and_reconnect():
+  print('Failed to connect to MQTT broker. Reconnecting...')
+  time.sleep(10)
+  machine.reset()
 
-# def restart_and_reconnect():
-#   print('Failed to connect to MQTT broker. Reconnecting...')
-#   time.sleep(10)
-#   machine.reset()
-
-# try:
-#   client = connect()
-#   client.set_callback(recebeMensagem)
-#   client.subscribe(topic_sub)
-#   alinhar()
-#   movimentar('frente', tempoFrente)
-# except OSError as e:
-#   restart_and_reconnect()
+try:
+  client = connect()
+  client.set_callback(recebeMensagem)
+  client.subscribe(topic_sub)
+  _thread.start_new_thread(lendoSensores, ())
+  alinharPorCores()
+except OSError as e:
+  restart_and_reconnect()
 while True:
-  corA = sensorA.readSensor()
-  corB = sensorB.readSensor()
-  print('cor a ', corA)
-  print('cor b ', corB)
-  # try:
-  #   client.check_msg()
-  #   if (time.time() - last_message) > message_interval:
-  #     # write on 'Hello' topic 
-  #     msg = b'Oi #%d' % counter
-  #     client.publish(topic_pub, msg)
-  #     last_message = time.time()
-  #     counter += 1
-  # except OSError as e:
-  #   restart_and_reconnect()
+  
+  try:
+    client.check_msg()
+  except OSError as e:
+    restart_and_reconnect()
