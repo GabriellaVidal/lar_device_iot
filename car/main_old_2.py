@@ -1,19 +1,19 @@
-from machine import Pin
+
 from rodas import Rodas
 carrinho = Rodas()
-# from sensorColor import SensorColor
-# sensorA = SensorColor(36, 14)
-# sensorB = SensorColor(39, 12)
-rodaEsquerda = Pin(13,Pin.IN) #d7
-rodaDireita = Pin(14,Pin.IN) #d5
-tempoGirar = 2
+from sensorColor import SensorColor
+sensorA = SensorColor(36, 14)
+sensorB = SensorColor(39, 12)
+tempoGirar = 4
 tempoFrente = tempoRe = 2
 execucao = mensagemEmExecucao = False
 alinhado = False
 desalinhado = True
+rodaEsquerda = rodaDireita = 'SL'
+import _thread
 
 def recebeMensagem(topic, msg): # recebe mensagem chama movimento
-  global desalinhado
+  global desalinhado, tempoFrente, tempoGirar
   print((topic, msg.decode("utf-8")))
 
   msg_replace = msg.decode("utf-8").replace(']','').replace('[','')
@@ -21,23 +21,19 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
   print(msg_array)
   mensagemEmExecucao = True
   for x in msg_array:
+
     if topic == b'esp/rele1' and x == 'up':
       # print('ESP received, rele1 to on')
       if(desalinhado == False):
         movimentar('frente', tempoFrente)
+        desalinhado = True        
       else:
-        alinhar()
+        alinharPorCores()
         movimentar('frente', tempoFrente)
-      desalinhado = True
 
     if topic == b'esp/rele1' and x == 'down':
       # print('ESP received, rele1 to re')
-      if(desalinhado == False):
-        movimentar('re', tempoFrente)
-      else:
-        alinhar()
-        movimentar('re', tempoFrente)
-      desalinhado = True
+      movimentar('re', tempoFrente)
 
     if topic == b'esp/rele1' and x == 'right':
       # print('ESP received, rele1 to direita')
@@ -57,7 +53,6 @@ def movimentar(comando, tempo): #movimento
   global desalinhado, execucao
   now=time.time()
   timer = 0
-  print('entrou')
   while timer != tempo:
     end = time.time()
     timer = round(end-now)
@@ -76,26 +71,47 @@ def movimentar(comando, tempo): #movimento
   carrinho.parar()
   execucao = False
 
-def alinhar():
-  global desalinhado, execucao,rodaEsquerda, rodaDireita
-  
+def lendoSensores():
+  global rodaEsquerda, rodaDireita
+  while True:
+    rodaEsquerda = sensorA.readSensor()
+    rodaDireita = sensorB.readSensor()
+    # time.sleep_ms(5)
+
+    # print('--------------------------------------rodaEsquerda ', rodaEsquerda)
+    # print('*************************************rodaDireita ', rodaDireita)
+    if rodaEsquerda == 'PRETO' and rodaDireita == 'PRETO':
+      print('--------------------------------------------------------------')
+
+def alinharPorCores():
+  print('alinhar')
+  global desalinhado, execucao, rodaEsquerda, rodaDireita
+  # rodaEsquerda = sensorA.readSensor()
+  # rodaDireita = sensorB.readSensor()
+  print('teste')
+  print(desalinhado)
   while desalinhado == True:
-    # print('rodaEsquerda', rodaEsquerda.value())
-    # print('rodaDireita', rodaDireita.value())
-    # time.sleep(4)
-    while rodaEsquerda.value() == rodaDireita.value() and desalinhado == True:
-      if rodaEsquerda.value() == 0 and rodaDireita.value() == 0:
+    print(execucao)
+    print('rodaEsquerda alinhando', rodaEsquerda)
+    print('rodaDireita alinhando', rodaDireita)
+    while rodaEsquerda == rodaDireita and desalinhado == True:
+      if rodaEsquerda != 'PRETO' and rodaDireita != 'PRETO':
+        print("entrou1")
         carrinho.frente()
-      if rodaEsquerda.value() == 1 and rodaDireita.value() == 1:
+      if rodaEsquerda == 'PRETO' and rodaDireita == 'PRETO':
+        print("entrou2")
         carrinho.parar()
         desalinhado = False
-        time.sleep(2)
-    while rodaEsquerda.value() != rodaDireita.value() and desalinhado == True:
-      if rodaEsquerda.value() == 1 and rodaDireita.value() == 0:
+    while rodaEsquerda != rodaDireita and desalinhado == True:
+      if rodaEsquerda == 'PRETO' and rodaDireita != 'PRETO':
+        print("entrou3")
         carrinho.esquerda()
-      if rodaEsquerda.value() == 0 and rodaDireita.value() == 1:
-        # carrinho.parar()
+      if rodaEsquerda != 'PRETO' and rodaDireita == 'PRETO':
+        print("entrou4")
         carrinho.direita()
+      if rodaEsquerda != 'PRETO' and rodaDireita != 'PRETO':
+        print("entrou5")
+        carrinho.frente()
 
 def connect():
   print('connect')
@@ -114,18 +130,13 @@ try:
   client = connect()
   client.set_callback(recebeMensagem)
   client.subscribe(topic_sub)
-  # _thread.start_new_thread(alinhar, ())
-  alinhar()
+  _thread.start_new_thread(lendoSensores, ())
+  alinharPorCores()
 except OSError as e:
   restart_and_reconnect()
 while True:
+  
   try:
     client.check_msg()
-    # if (time.time() - last_message) > message_interval:
-    #   write on 'Hello' topic 
-    #   msg = b'Oi #%d' % counter
-    #   client.publish(topic_pub, msg)
-    #   last_message = time.time()
-    #   counter += 1
   except OSError as e:
     restart_and_reconnect()
