@@ -90,9 +90,9 @@ class MQTTClient:
         self.sock.write(msg)
         #print(hex(len(msg)), hexlify(msg, ":"))
         self._send_str(self.client_id)
-        if self.lw_topic:
-            self._send_str(self.lw_topic)
-            self._send_str(self.lw_msg)
+        # if self.lw_topic:
+        #     self._send_str(self.lw_topic)
+        #     self._send_str(self.lw_msg)
         if self.user is not None:
             self._send_str(self.user)
             self._send_str(self.pswd)

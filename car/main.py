@@ -1,3 +1,4 @@
+from utime import ticks_ms, sleep_ms
 from machine import Pin
 from rodas import Rodas
 carrinho = Rodas()
@@ -6,8 +7,8 @@ carrinho = Rodas()
 # sensorB = SensorColor(39, 12)
 rodaEsquerda = Pin(13,Pin.IN) #d7
 rodaDireita = Pin(14,Pin.IN) #d5
-tempoGirar = 2
-tempoFrente = tempoRe = 2
+tempoGirar = 1100
+tempoFrente = tempoRe = 1100
 execucao = mensagemEmExecucao = False
 alinhado = False
 desalinhado = True
@@ -54,14 +55,25 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
       carrinho.parar();
 
 def movimentar(comando, tempo): #movimento
-  global desalinhado, execucao
-  now=time.time()
-  timer = 0
+  global desalinhado, execucao, rodaEsquerda, rodaDireita
+  # now=time.time()
+  now=ticks_ms()
+  timer = tempo
   print('entrou')
-  while timer != tempo:
-    end = time.time()
-    timer = round(end-now)
+  while timer <= tempo:
+    # end = time.time()
+    end = ticks_ms()
+    timer = end-now
+    print('tempo----------', tempo)
+    print('timer----------', timer)
+    print('end----------', end)
+    print('now----------', now)
+    # print('linha preta----------', rodaEsquerda.value() == 1 and rodaDireita.value() == 1)
+    # print('executando----------', execucao)
     if(comando == 'frente'):
+      # if execucao == True and rodaEsquerda.value() == 1 and rodaDireita.value() == 1:
+        # break
+      # else:
       print('frente')
       carrinho.frente()
     if(comando == 're'):
@@ -73,11 +85,13 @@ def movimentar(comando, tempo): #movimento
     if(comando == 'esq'):
       print('esq')
       carrinho.esquerda()
+    execucao = True
+  print('saiu')
   carrinho.parar()
   execucao = False
 
 def alinhar():
-  global desalinhado, execucao,rodaEsquerda, rodaDireita
+  global desalinhado, rodaEsquerda, rodaDireita
   
   while desalinhado == True:
     # print('rodaEsquerda', rodaEsquerda.value())
@@ -114,7 +128,6 @@ try:
   client = connect()
   client.set_callback(recebeMensagem)
   client.subscribe(topic_sub)
-  # _thread.start_new_thread(alinhar, ())
   alinhar()
 except OSError as e:
   restart_and_reconnect()
