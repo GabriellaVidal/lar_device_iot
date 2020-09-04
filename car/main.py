@@ -14,15 +14,18 @@ alinhado = False
 desalinhado = True
 
 def recebeMensagem(topic, msg): # recebe mensagem chama movimento
-  global desalinhado
+  global desalinhado, topic_sub, topic_pub
   print((topic, msg.decode("utf-8")))
 
   msg_replace = msg.decode("utf-8").replace(']','').replace('[','')
   msg_array = msg_replace.replace('"','').split(",")
   print(msg_array)
+  print(topic_sub)
+  print(client)
+  
   mensagemEmExecucao = True
   for x in msg_array:
-    if topic == b'esp/rele1' and x == 'up':
+    if topic == topic_sub and x == 'up':
       # print('ESP received, rele1 to on')
       if(desalinhado == False):
         movimentar('frente', tempoFrente)
@@ -31,7 +34,7 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
         movimentar('frente', tempoFrente)
       desalinhado = True
 
-    if topic == b'esp/rele1' and x == 'down':
+    if topic == topic_sub and x == 'down':
       # print('ESP received, rele1 to re')
       if(desalinhado == False):
         movimentar('re', tempoFrente)
@@ -40,19 +43,20 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
         movimentar('re', tempoFrente)
       desalinhado = True
 
-    if topic == b'esp/rele1' and x == 'right':
+    if topic == topic_sub and x == 'right':
       # print('ESP received, rele1 to direita')
       desalinhado = True
       movimentar('dir', tempoGirar)
 
-    if topic == b'esp/rele1' and x == 'left':
+    if topic == topic_sub and x == 'left':
       # print('ESP received, rele1 to direita')
       desalinhado = True
       movimentar('esq', tempoGirar)
 
-    if topic == b'esp/rele1' and x == 'stop':
+    if topic == topic_sub and x == 'stop':
       # print('ESP received, rele1 to off')
       carrinho.parar();
+  client.publish(topic_pub, b"feito")
 
 def movimentar(comando, tempo): #movimento
   global desalinhado, execucao, rodaEsquerda, rodaDireita

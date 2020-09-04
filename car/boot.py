@@ -24,8 +24,10 @@ mqtt_password=''
 client_id = ubinascii.hexlify(machine.unique_id())
 topic_sub_led = b'esp/led'
 # topic_pub_led = b'esp/vivo'
-topic_sub = b'esp/rele1'
-topic_pub = b'esp/vivo'
+# topic_sub = b'esp/rele1'
+# topic_pub = b'esp/vivo'
+topic_sub = b'ureto/sub'
+topic_pub = b'ureto/pub'
 
 last_message = 0
 message_interval = 30
