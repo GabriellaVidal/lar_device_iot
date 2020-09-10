@@ -12,6 +12,7 @@ tempoFrente = tempoRe = 1100
 execucao = mensagemEmExecucao = False
 alinhado = False
 desalinhado = True
+led = Pin(2, Pin.OUT)
 
 def recebeMensagem(topic, msg): # recebe mensagem chama movimento
   global desalinhado, topic_sub, topic_pub
@@ -33,6 +34,7 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
         alinhar()
         movimentar('frente', tempoFrente)
       desalinhado = True
+      client.publish(topic_pub, b"feito")
 
     if topic == topic_sub and x == 'down':
       # print('ESP received, rele1 to re')
@@ -42,21 +44,36 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
         alinhar()
         movimentar('re', tempoFrente)
       desalinhado = True
+      client.publish(topic_pub, b"feito")
 
     if topic == topic_sub and x == 'right':
       # print('ESP received, rele1 to direita')
       desalinhado = True
       movimentar('dir', tempoGirar)
+      client.publish(topic_pub, b"feito")
 
     if topic == topic_sub and x == 'left':
       # print('ESP received, rele1 to direita')
       desalinhado = True
       movimentar('esq', tempoGirar)
+      client.publish(topic_pub, b"feito")
 
     if topic == topic_sub and x == 'stop':
       # print('ESP received, rele1 to off')
       carrinho.parar();
-  client.publish(topic_pub, b"feito")
+      client.publish(topic_pub, b"feito")
+
+    if topic == topic_sub and x == 'finalizado':
+      client.publish(topic_pub, b"feito")
+      blink();
+  # client.publish(topic_pub, b"feito")
+
+def blink():
+  for i in range(3):
+    led.value(0)
+    time.sleep(0.5)
+    led.value(1)
+    time.sleep(0.5)
 
 def movimentar(comando, tempo): #movimento
   global desalinhado, execucao, rodaEsquerda, rodaDireita
