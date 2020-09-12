@@ -1,12 +1,14 @@
 from utime import ticks_ms, sleep_ms
 from machine import Pin
+
 from rodas import Rodas
 carrinho = Rodas()
-# from sensorColor import SensorColor
-# sensorA = SensorColor(36, 14)
-# sensorB = SensorColor(39, 12)
 rodaEsquerda = Pin(13,Pin.IN) #d7
 rodaDireita = Pin(14,Pin.IN) #d5
+
+from sensorColor import SensorColor
+sensor = SensorColor(0, 12)
+
 tempoGirar = 1100
 tempoFrente = tempoRe = 1100
 execucao = mensagemEmExecucao = False
@@ -145,21 +147,22 @@ def restart_and_reconnect():
   time.sleep(10)
   machine.reset()
 
-try:
-  client = connect()
-  client.set_callback(recebeMensagem)
-  client.subscribe(topic_sub)
-  alinhar()
-except OSError as e:
-  restart_and_reconnect()
+# try:
+#   client = connect()
+#   client.set_callback(recebeMensagem)
+#   client.subscribe(topic_sub)
+#   alinhar()
+# except OSError as e:
+#   restart_and_reconnect()
 while True:
-  try:
-    client.check_msg()
-    # if (time.time() - last_message) > message_interval:
-    #   write on 'Hello' topic 
-    #   msg = b'Oi #%d' % counter
-    #   client.publish(topic_pub, msg)
-    #   last_message = time.time()
-    #   counter += 1
-  except OSError as e:
-    restart_and_reconnect()
+  print("sensor cor: -------", sensor.readSensor())
+  # try:
+  #   client.check_msg()
+  #   # if (time.time() - last_message) > message_interval:
+  #   #   write on 'Hello' topic 
+  #   #   msg = b'Oi #%d' % counter
+  #   #   client.publish(topic_pub, msg)
+  #   #   last_message = time.time()
+  #   #   counter += 1
+  # except OSError as e:
+  #   restart_and_reconnect()

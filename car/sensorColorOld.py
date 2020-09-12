@@ -8,9 +8,8 @@ class SensorColor:
     	self.green = 0
     	self.blue = 0
 
-    	# self.sensorLDR = ADC(Pin(pinADC))
-        self.sensorLDR = ADC(pinADC)
-    	# self.sensorLDR.atten(ADC.ATTN_11DB)
+    	self.sensorLDR = ADC(Pin(pinADC))
+    	self.sensorLDR.atten(ADC.ATTN_11DB)
     	self.sensorNP = neopixel.NeoPixel(Pin(pinDG), 1)
     
 
@@ -28,25 +27,25 @@ class SensorColor:
     	self.changeColor('R')
     	time.sleep_ms(5)
     	self.red = self.sensorLDR.read()
-    	print('red -------------', self.red)
+    	# print('red ', self.red)
 
     	self.changeColor('G')
     	time.sleep_ms(5)
     	self.green = self.sensorLDR.read()
-    	print('green ----------------------', self.green)
+    	# print('green ', self.green)
 
     	self.changeColor('B')
     	time.sleep_ms(5)
     	self.blue = self.sensorLDR.read()
-    	print('blue ----------------------------', self.blue)
+    	# print('blue ', self.blue)
 
-    	if (self.red > self.green and self.red > self.blue):
+    	if (self.red > self.green and self.red > self.blue and self.red > 3000):
     		return "VERMELHO"
     		# print("------------ VERMELHO ----------")
-    	elif (self.green > self.red and self.green > self.blue):
+    	elif (self.green > self.red and self.green > self.blue and self.green > 3000):
     		return "VERDE"
     		# return "------------ VERDE ----------"
-    	elif(self.blue > self.red and self.blue > self.green):
+    	elif(self.blue > self.red and self.green > self.blue and self.blue > 2400):
     		return "AZUL"
     		# return "------------ AZUL ----------"
     	elif(self.red < self.green and self.green > self.blue):
