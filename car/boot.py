@@ -16,7 +16,7 @@ gc.collect()
 # mqtt_server = '10.6.4.138'
 ssid = 'brisa-1172954'
 password = 'umezhftn'
-mqtt_server = '192.168.1.4'
+mqtt_server = '192.168.1.2'
 server_port=1883
 mqtt_user=''
 mqtt_password=''

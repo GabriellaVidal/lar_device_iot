@@ -66,6 +66,8 @@ def recebeMensagem(topic, msg): # recebe mensagem chama movimento
       client.publish(topic_pub, b"feito")
 
     if topic == topic_sub and x == 'finalizado':
+      # cor = sensor.readSensor()
+      # client.publish(topic_pub, cor)
       client.publish(topic_pub, b"feito")
       blink();
   # client.publish(topic_pub, b"feito")
@@ -147,22 +149,21 @@ def restart_and_reconnect():
   time.sleep(10)
   machine.reset()
 
-# try:
-#   client = connect()
-#   client.set_callback(recebeMensagem)
-#   client.subscribe(topic_sub)
-#   alinhar()
-# except OSError as e:
-#   restart_and_reconnect()
+try:
+  client = connect()
+  client.set_callback(recebeMensagem)
+  client.subscribe(topic_sub)
+  alinhar()
+except OSError as e:
+  restart_and_reconnect()
 while True:
-  print("sensor cor: -------", sensor.readSensor())
-  # try:
-  #   client.check_msg()
-  #   # if (time.time() - last_message) > message_interval:
-  #   #   write on 'Hello' topic 
-  #   #   msg = b'Oi #%d' % counter
-  #   #   client.publish(topic_pub, msg)
-  #   #   last_message = time.time()
-  #   #   counter += 1
-  # except OSError as e:
-  #   restart_and_reconnect()
+  try:
+    client.check_msg()
+    # if (time.time() - last_message) > message_interval:
+    #   write on 'Hello' topic 
+    #   msg = b'Oi #%d' % counter
+    #   client.publish(topic_pub, msg)
+    #   last_message = time.time()
+    #   counter += 1
+  except OSError as e:
+    restart_and_reconnect()
